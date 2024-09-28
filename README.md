@@ -10,31 +10,31 @@ Key Features:
 
 1. Health-Related Conversations:
 
-The chatbot responds to general health and lifestyle inquiries.
-It can answer questions about the patient’s medical condition, medication regimen, diet, etc.
-The bot processes requests from the patient to their doctor, such as medication changes.
+  The chatbot responds to general health and lifestyle inquiries.
+  It can answer questions about the patient’s medical condition, medication regimen, diet, etc.
+  The bot processes requests from the patient to their doctor, such as medication changes.
 
 2. Appointment and Treatment Requests:
 
-If the patient requests an appointment change (e.g., “Can we reschedule the appointment to next Friday at 3 PM?”), the bot will:
-Respond with a message like, “I will convey your request to Dr. [Doctor's Name].”
-Output a review message next to the chat box, such as, “Patient [Name] is requesting an appointment change from [current time] to [requested time].”
+  If the patient requests an appointment change (e.g., “Can we reschedule the appointment to next Friday at 3 PM?”), the bot will:
+  Respond with a message like, “I will convey your request to Dr. [Doctor's Name].”
+  Output a review message next to the chat box, such as, “Patient [Name] is requesting an appointment change from [current time] to [requested time].”
 
 3. Conversation History and Memory Optimization:
 
-The chatbot manages long conversations while optimizing memory usage to handle ongoing dialogues efficiently without losing important information.
+  The chatbot manages long conversations while optimizing memory usage to handle ongoing dialogues efficiently without losing important information.
 
 4. Entity Extraction:
 
-The bot extracts key entities from the conversation, such as appointment preferences or mentions of medication/diet. For example, if the patient says, "I am taking lisinopril twice a day," the bot extracts {medication: lisinopril, frequency: 2 times a day}.
+  The bot extracts key entities from the conversation, such as appointment preferences or mentions of medication/diet. For example, if the patient says, "I am taking lisinopril twice a day," the bot extracts {medication: lisinopril, frequency: 2 times a day}.
 
 5. LLM Agnostic Design (Bonus):
 
-The application is designed to be LLM agnostic, allowing easy swapping of different language models by setting environment variables, enabling flexibility in model usage.
+  The application is designed to be LLM agnostic, allowing easy swapping of different language models by setting environment variables, enabling flexibility in model usage.
 
 6. Conversation Summaries and Medical Insights (Bonus):
 
-The bot detects and outputs live conversation summaries and medical insights, providing a concise overview of ongoing conversations.
+  The bot detects and outputs live conversation summaries and medical insights, providing a concise overview of ongoing conversations.
 
 ## Prerequisites
 
