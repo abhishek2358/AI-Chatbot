@@ -31,7 +31,7 @@ CREATE DATABASE chat_db;
 Create a new user (role) for your project:
 ```bash
 CREATE USER chat_user WITH PASSWORD 'chatdb';
-
+```
 4. Grant Privileges
 Grant the necessary privileges to the new user for the newly created database:
 ```bash
