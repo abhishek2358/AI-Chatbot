@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 text-white p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Chat Sessions</h2>
+                <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full" 
+                        onclick="openPatientModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10A8 8 0 11-1.5 5.964a4.001 4.001 0 000 8.072A8.001 8.001 0 0118 10zM10 2a8 8 0 00-8 8v.005a6.002 6.002 0 0111.337 2.057A8.001 8.001 0 0010 2zM7 10V8a1 1 0 00-2 0v2a1 1 0 102 0zm6 0v-2a1 1 0 10-2 0v2a1 1 0 102 0zM7 12v1a1 1 0 102 0v-1a1 1 0 10-2 0zM13 11v1a1 1 0 102 0v-1a1 1 0 10-2 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <ul id="chat-sessions" class="space-y-2">
+                {% if chatSessions_list %}
+                    <li class="text-green-500">Found {{ chatSessions_list|length }} sessions</li>
+                {% else %}
+                    <li class="text-red-500">No sessions found</li>
+                {% endif %}
+                
+                {% for session in chatSessions_list %}
+                    <li class="text-yellow-500">
+                        <a href="{% url 'chat_session' session.session_id %}">
+                            {{ session.session_name }}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="text-orange-500">No chat sessions available.</li>
+                {% endfor %}
+            </ul>
+            <button id="new-chat" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                onclick="window.location.href=`{% url 'create_chat_session' %}`">
+                New Chat
+            </button>
+        </div>
+    
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Messages -->
+            <div class="flex-1 flex flex-col">
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-4 {% if message.sender == 'user' %}text-right{% endif %}">
+                                <div class="inline-block p-2 rounded {% if message.sender == 'user' %}bg-blue-500 text-white{% else %}bg-gray-300{% endif %}">
+                                    {{ message.message }}
+                                    <div class="text-xs text-gray-400">{{ message.message_time|date:"Y-m-d H:i:s" }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            
+                <!-- Chat Input -->
+                <div class="p-4 bg-white">
+                    <form id="chat-form" method="POST" action="{% url 'chat_session' selected_session.session_id %}" class="flex">
+                        {% csrf_token %}
+                        <input type="text" id="chat-input" name="message" class="flex-1 border rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r">
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+    
+        </div>
+    <!-- Patient Info Modal -->
+    <div id="patientModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Patient Information</h2>
+            <div id="patientInfo">
+                <!-- Patient data will be populated here -->
+            </div>
+            <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" 
+                    onclick="closePatientModal()">
+                Close
+            </button>
+        </div>
+    </div>
+    </div>
+    
+    <script>
+
+        // Function to open the modal and load patient info
+        function openPatientModal() {
+            // Fetch patient data (replace this with your actual AJAX request)
+            const patientData = {
+                'FirstName': 'Abhishek',
+                'LastName': 'Goyal',
+                'DOB': '1999-05-19',
+                'PhoneNumber': '123456',
+                'Email': 'abhi2358@seas.upenn.edu',
+                'MedicalHistory': 'Hypertension',
+                'MedicationRegiment': 'Aspirin',
+                'LastAppointmentDate': '2024-02-19',
+                'NextAppointmentDate': '2024-03-19',
+                "DoctorName": 'Dr. Adam Smith',
+                
+            };
+
+            // Populate patient data in the modal
+            document.getElementById('patientInfo').innerHTML = `
+                <p><strong>First Name:</strong> ${patientData.FirstName}</p>
+                <p><strong>Last Name:</strong> ${patientData.LastName}</p>
+                <p><strong>Date of Birth:</strong> ${patientData.DOB}</p>
+                <p><strong>Phone Number:</strong> ${patientData.PhoneNumber}</p>
+                <p><strong>Email:</strong> ${patientData.Email}</p>
+                <p><strong>Medical History:</strong> ${patientData.MedicalHistory}</p>
+                <p><strong>Medication Regiment:</strong> ${patientData.MedicationRegiment}</p>
+                <p><strong>Last Appointment Date:</strong> ${patientData.LastAppointmentDate}</p>
+                <p><strong>Next Appointment Date:</strong> ${patientData.NextAppointmentDate}</p>
+                <p><strong>Doctor's Name:</strong> ${patientData.DoctorName}</p>
+            `;
+
+            // Show the modal
+            document.getElementById('patientModal').classList.remove('hidden');
+        }
+
+        // Function to close the modal
+        function closePatientModal() {
+            document.getElementById('patientModal').classList.add('hidden');
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();  // Prevent the form from submitting normally
+            
+            const messageInput = document.getElementById('chat-input');
+            const messageContent = messageInput.value;
+
+            // Ensure the message is not empty
+            if (messageContent.trim() === '') {
+                return;
+            }
+
+            // Send the message via AJAX
+            fetch("{% url 'chat_session' selected_session.session_id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'  // Tell Django this is an AJAX request
+                },
+                body: new URLSearchParams({
+                    'message': messageContent,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear the input field after sending the message
+                messageInput.value = '';
+
+                // Append the new user message to the chat messages area
+                const chatMessages = document.getElementById('chat-messages');
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('mb-4', 'text-right');
+                userMessage.innerHTML = `
+                    <div class="inline-block p-2 rounded bg-blue-500 text-white">
+                        ${data.user_message.message}
+                        <div class="text-xs text-gray-400">${data.user_message.message_time}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(userMessage);
+
+                // Append the bot response to the chat messages area
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('mb-4');
+                botMessage.innerHTML = `
+                    <div class="inline-block p-2 rounded bg-gray-300">
+                        ${data.bot_message.message}
+                        <div class="text-xs text-gray-400">${data.bot_message.message_time}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(botMessage);
+
+                // check if data has element data.bot_message2
+                if (data.bot_message2) {
+                    const botMessage2 = document.createElement('div');
+                    botMessage2.classList.add('mb-4');
+                    botMessage2.innerHTML = `
+                        <div class="inline-block p-2 rounded bg-gray-300">
+                            ${data.bot_message2.message}
+                            <div class="text-xs text-gray-400">${data.bot_message2.message_time}</div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(botMessage2);
+                }
+
+                // Scroll to the bottom of the chat after appending the new messages
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+    </script>
+    
+    
+</body>
+</html>
