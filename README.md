@@ -64,14 +64,14 @@ Apply the database migrations to set up your database schema:
 ```bash
 python manage.py migrate
 ```
-Step 6: Create a Superuser
+## Step 5: Create a Superuser
 Create a superuser account to access the Django admin interface:
 ```bash
 python manage.py createsuperuser
 ```
 Follow the prompts to create your admin user.
 
-Step 7: Run the Django Development Server
+## Step 6: Run the Django Development Server
 Start the Django development server to test the setup:
 ```bash
 python manage.py runserver
