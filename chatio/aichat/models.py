@@ -29,7 +29,7 @@ class patient(models.Model):
     patient_email = models.EmailField()
     patient_phone = models.CharField(max_length=10)
     patient_dob = models.DateField(default='1999-05-19')
-    patient_summary = models.TextField(default='Hypertension')
+    patient_summary = models.TextField(default='No summary yet')
     patient_last_appointment = models.DateTimeField(default='2024-02-19')
     patient_next_appointment = models.DateTimeField(default='2024-03-19')
     patient_treatment_plan = models.TextField(default='Aspirin')

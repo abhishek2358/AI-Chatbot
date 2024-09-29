@@ -10,7 +10,7 @@
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 text-white p-4">
+        <div class="w-64 bg-gray-800 text-white p-4 overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold">Chat Sessions</h2>
                 <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full" 
@@ -41,39 +41,42 @@
                 onclick="window.location.href=`{% url 'create_chat_session' %}`">
                 New Chat
             </button>
+            <!-- New Button for Big Popup -->
+            <button id="show-big-popup" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                onclick="openBigPopup()">
+                Conversation Summary
+            </button>
         </div>
     
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Chat Messages -->
-            <div class="flex-1 flex flex-col">
-                <!-- Chat Messages -->
-                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="mb-4 {% if message.sender == 'user' %}text-right{% endif %}">
-                                <div class="inline-block p-2 rounded {% if message.sender == 'user' %}bg-blue-500 text-white{% else %}bg-gray-300{% endif %}">
-                                    {{ message.message }}
-                                    <div class="text-xs text-gray-400">{{ message.message_time|date:"Y-m-d H:i:s" }}</div>
-                                </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 {% if message.sender == 'user' %}text-right{% endif %}">
+                            <div class="inline-block p-2 rounded {% if message.sender == 'user' %}bg-blue-500 text-white{% else %}bg-gray-300{% endif %}">
+                                {{ message.message }}
+                                <div class="text-xs text-gray-400">{{ message.message_time|date:"Y-m-d H:i:s" }}</div>
                             </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            
-                <!-- Chat Input -->
-                <div class="p-4 bg-white">
-                    <form id="chat-form" method="POST" action="{% url 'chat_session' selected_session.session_id %}" class="flex">
-                        {% csrf_token %}
-                        <input type="text" id="chat-input" name="message" class="flex-1 border rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r">
-                            Send
-                        </button>
-                    </form>
-                </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
-    
+        
+            <!-- Chat Input -->
+            <div class="p-4 bg-white">
+                <form id="chat-form" method="POST" action="{% url 'chat_session' selected_session.session_id %}" class="flex">
+                    {% csrf_token %}
+                    <input type="text" id="chat-input" name="message" class="flex-1 border rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r">
+                        Send
+                    </button>
+                </form>
+            </div>
         </div>
+    </div>
+
     <!-- Patient Info Modal -->
     <div id="patientModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded-lg w-1/3">
@@ -87,48 +90,43 @@
             </button>
         </div>
     </div>
+
+    <!-- Big Popup -->
+    <div id="bigPopup" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-2/3 max-h-[80vh] flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Conversation Summary</h2>
+            <div class="flex-1 overflow-y-auto mb-4 pr-4">
+                <div class="space-y-4">
+                    <!-- Content Here -->
+                    <p>{{ summary }}</p>
+                    
+                    <!-- More content as needed -->
+                </div>
+            </div>
+            <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" 
+                    onclick="closeBigPopup()">
+                Close
+            </button>
+        </div>
     </div>
     
     <script>
-
-        // Function to open the modal and load patient info
+        // Existing functions
         function openPatientModal() {
-            // Fetch patient data (replace this with your actual AJAX request)
-            const patientData = {
-                'FirstName': 'Abhishek',
-                'LastName': 'Goyal',
-                'DOB': '1999-05-19',
-                'PhoneNumber': '123456',
-                'Email': 'abhi2358@seas.upenn.edu',
-                'MedicalHistory': 'Hypertension',
-                'MedicationRegiment': 'Aspirin',
-                'LastAppointmentDate': '2024-02-19',
-                'NextAppointmentDate': '2024-03-19',
-                "DoctorName": 'Dr. Adam Smith',
-                
-            };
-
-            // Populate patient data in the modal
-            document.getElementById('patientInfo').innerHTML = `
-                <p><strong>First Name:</strong> ${patientData.FirstName}</p>
-                <p><strong>Last Name:</strong> ${patientData.LastName}</p>
-                <p><strong>Date of Birth:</strong> ${patientData.DOB}</p>
-                <p><strong>Phone Number:</strong> ${patientData.PhoneNumber}</p>
-                <p><strong>Email:</strong> ${patientData.Email}</p>
-                <p><strong>Medical History:</strong> ${patientData.MedicalHistory}</p>
-                <p><strong>Medication Regiment:</strong> ${patientData.MedicationRegiment}</p>
-                <p><strong>Last Appointment Date:</strong> ${patientData.LastAppointmentDate}</p>
-                <p><strong>Next Appointment Date:</strong> ${patientData.NextAppointmentDate}</p>
-                <p><strong>Doctor's Name:</strong> ${patientData.DoctorName}</p>
-            `;
-
-            // Show the modal
-            document.getElementById('patientModal').classList.remove('hidden');
+            // ... (existing code)
         }
 
-        // Function to close the modal
         function closePatientModal() {
             document.getElementById('patientModal').classList.add('hidden');
+        }
+
+        // New functions for Big Popup
+        function openBigPopup() {
+            document.getElementById('bigPopup').classList.remove('hidden');
+        }
+
+        function closeBigPopup() {
+            document.getElementById('bigPopup').classList.add('hidden');
         }
 
         document.getElementById('chat-form').addEventListener('submit', function(e) {
@@ -200,9 +198,6 @@
             })
             .catch(error => console.error('Error:', error));
         });
-
     </script>
-    
-    
 </body>
 </html>

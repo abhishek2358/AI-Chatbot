@@ -9,7 +9,7 @@ conversation_memory = []
 def index(request):
 
     patient_record = patient.objects.create(patient_id=1, patient_name='Abhishek Goyal',
-                                            patient_email="abhi2358@seas.upenn.edu", patient_phone='123456', patient_dob='1999-05-19', patient_summary='Hypertension', patient_last_appointment='2024-02-19', patient_next_appointment='2024-03-19', patient_treatment_plan='Aspirin', patient_doctor='Dr. Adam Smith')
+                                            patient_email="abhi2358@seas.upenn.edu", patient_phone='123456', patient_dob='1999-05-19', patient_summary='No summary yet', patient_last_appointment='2024-02-19', patient_next_appointment='2024-03-19', patient_treatment_plan='Aspirin', patient_doctor='Dr. Adam Smith')
                 
     
     return HttpResponse("Hello, world. You're at the aichat index.")
@@ -22,10 +22,11 @@ def home(request):
     # check if patient with record patient_id 1 exists, if not create one
     if not patient.objects.filter(patient_id=1).exists():
         patient_record = patient.objects.create(patient_id=1, patient_name='Abhishek Goyal',
-                                            patient_email="abhi2348@seas.upenn.edu", patient_phone='123456', patient_dob='1999-05-19', patient_summary='Hypertension', patient_last_appointment='2024-02-19', patient_next_appointment='2024-03-19', patient_treatment_plan='Aspirin', patient_doctor='Dr. Adam Smith')
+                                            patient_email="abhi2348@seas.upenn.edu", patient_phone='123456', patient_dob='1999-05-19', patient_summary='No summary yet', patient_last_appointment='2024-02-19', patient_next_appointment='2024-03-19', patient_treatment_plan='Aspirin', patient_doctor='Dr. Adam Smith')
         
-
-    
+    # if patient record exists, fetch the record
+    else:
+        patient_record = patient.objects.get(patient_id=1)
     # Check if there are any sessions
     if chatSessions_list.exists():
         # Get the last session
@@ -44,13 +45,15 @@ def home(request):
     return render(request, 'aichat/home.html', {
         'chatSessions_list': chatSessions_list,  # All sessions for the sidebar
         'selected_session': selected_session,  # Last session or new session
-        'messages': messages  # Messages for the selected session
+        'messages': messages,  # Messages for the selected session
+        'summary': patient_record.patient_summary
     })
 
 def chat_session(request, session_id):
     global conversation_memory
     # Get the chat session by session_id
     session = get_object_or_404(chatSessions, session_id=session_id)
+    patient_summary = patient.objects.get(patient_id=1).patient_summary
 
     # Fetch messages for this session
     messages = chatMessages.objects.filter(session_id=session).order_by('message_time')
@@ -140,7 +143,8 @@ def chat_session(request, session_id):
     return render(request, 'aichat/home.html', {
         'chatSessions_list': chatSessions.objects.all(),
         'messages': messages,
-        'selected_session': session
+        'selected_session': session,
+        'summary': patient_summary
     })
 
 
